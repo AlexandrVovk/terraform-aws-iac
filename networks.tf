@@ -123,3 +123,92 @@ resource "aws_main_route_table_association" "worker-associate" {
   vpc_id         = aws_vpc.worker-vpc.id
   route_table_id = aws_route_table.internet_route_worker.id
 }
+
+
+resource "aws_security_group" "sg44380" {
+  provider    = aws.region-master
+  name        = "sg44380"
+  description = "443,80"
+  vpc_id      = aws_vpc.master-vpc.id
+  ingress {
+    description = "Allow 443 from anywhere"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "Allow 80 from anywhere for redirection"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "sg808022" {
+  provider    = aws.region-master
+  name        = "sg808022"
+  description = "8080,22"
+  vpc_id      = aws_vpc.master-vpc.id
+  ingress {
+    description = "Allow 8080 from yourip"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [var.ip]
+  }
+  ingress {
+    description = "Allow 22 from yourip"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.ip]
+  }
+  ingress {
+    description = "Allow all from worker vpc"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["192.168.1.0/24"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "sg22" {
+  provider    = aws.region-worker
+  name        = "sg22"
+  description = "22"
+  vpc_id      = aws_vpc.worker-vpc.id
+  ingress {
+    description = "Allow 22 from yourip"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.ip]
+  }
+  ingress {
+    description = "Allow all from master vpc"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["10.0.1.0/24"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
