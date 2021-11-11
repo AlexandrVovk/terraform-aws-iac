@@ -17,3 +17,17 @@ variable "secret_key" {
 variable "ip" {
   type = string
 }
+
+variable "mykey" {
+  type = string
+}
+
+variable "workers-count" {
+  type    = number
+  default = 1
+}
+
+variable "instance-type" {
+  type    = string
+  default = "t2.micro"
+}
